@@ -5,11 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>やることリスト</title>
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
       font-family: 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
@@ -19,6 +15,7 @@
       color: #1a1a2e;
     }
 
+    /* ── タイトル ── */
     h1 {
       text-align: center;
       font-size: 1.6rem;
@@ -28,26 +25,61 @@
       letter-spacing: 0.05em;
     }
 
-    h1 span {
+    h1 .date-text {
       display: block;
       font-size: 0.85rem;
       font-weight: 400;
       color: #7a8ba0;
       margin-top: 4px;
-      letter-spacing: 0.02em;
     }
 
+    /* ── 同期バッジ ── */
+    .sync-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #7a8ba0;
+      margin-top: 6px;
+      transition: color 0.3s;
+    }
+
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #b0bec5;
+      flex-shrink: 0;
+      transition: background 0.3s;
+    }
+
+    .sync-badge.synced  .sync-dot { background: #4caf82; }
+    .sync-badge.synced             { color: #4caf82; }
+
+    .sync-badge.syncing .sync-dot {
+      background: #f59e0b;
+      animation: dotPulse 1s ease-in-out infinite;
+    }
+    .sync-badge.syncing { color: #f59e0b; }
+
+    .sync-badge.offline .sync-dot { background: #b0bec5; }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1;   transform: scale(1); }
+      50%       { opacity: 0.3; transform: scale(0.7); }
+    }
+
+    /* ── カード ── */
     .card {
-      background: #ffffff;
+      background: #fff;
       border-radius: 20px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
       max-width: 520px;
       margin: 0 auto;
-      /* overflow: hidden は FLIP アニメーション中のクリップを避けるため外す */
-      border-radius: 20px;
     }
 
-    /* 入力エリア */
+    /* ── 入力エリア ── */
     .input-area {
       display: flex;
       gap: 10px;
@@ -72,7 +104,7 @@
 
     .input-area input:focus {
       border-color: #4f8ef7;
-      box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.12);
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
       background: #fff;
     }
 
@@ -85,18 +117,15 @@
       font-size: 1.4rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s, transform 0.1s;
       line-height: 1;
       flex-shrink: 0;
+      transition: background 0.2s, transform 0.1s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-add:active {
-      background: #3570d4;
-      transform: scale(0.95);
-    }
+    .btn-add:active { background: #3570d4; transform: scale(0.95); }
 
-    /* フィルター */
+    /* ── フィルター ── */
     .filter-bar {
       display: flex;
       padding: 12px 20px;
@@ -113,50 +142,37 @@
       color: #7a8ba0;
       cursor: pointer;
       border-radius: 8px;
-      transition: background 0.15s, color 0.15s;
       font-weight: 500;
+      transition: background 0.15s, color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
 
-    .filter-btn.active {
-      background: #eef3fd;
-      color: #4f8ef7;
-      font-weight: 700;
-    }
+    .filter-btn.active { background: #eef3fd; color: #4f8ef7; font-weight: 700; }
 
-    /* タスクリスト */
+    /* ── タスクリスト ── */
     .task-list {
       list-style: none;
       padding: 4px 0;
-      min-height: 60px;
-      /* FLIP アニメーション中の overflow を制御 */
+      min-height: 80px;
       overflow: hidden;
     }
 
-    /* タスク行 */
+    /* ── タスク行 ── */
     .task-item {
       display: flex;
       align-items: center;
       gap: 14px;
       padding: 18px 20px;
       border-bottom: 1px solid #f3f6fa;
-      /* FLIP 用 */
       will-change: transform;
     }
 
     .task-item:last-child { border-bottom: none; }
 
-    /* 新規追加アニメーション（チェック移動とは分離） */
-    .task-item.is-new {
-      animation: slideIn 0.2s ease forwards;
-    }
+    .task-item.is-new    { animation: slideIn 0.2s ease forwards; }
+    .task-item.done-divider-above { border-top: 1px solid #dde8f5; }
 
-    /* 完了済みの区切り線 */
-    .task-item.done-divider-above {
-      border-top: 1px solid #dde8f5;
-    }
-
-    /* カスタムチェックボックス — Galaxy S25 タップしやすいサイズ */
+    /* ── チェックボックス ── */
     .check-wrap {
       flex-shrink: 0;
       width: 44px;
@@ -173,8 +189,7 @@
     .check-wrap input[type="checkbox"] {
       opacity: 0;
       position: absolute;
-      width: 100%;
-      height: 100%;
+      inset: 0;
       cursor: pointer;
       margin: 0;
     }
@@ -188,22 +203,14 @@
       align-items: center;
       justify-content: center;
       background: #fff;
-      transition: border-color 0.2s, background 0.2s, transform 0.15s;
+      transition: border-color 0.2s, background 0.2s;
       pointer-events: none;
     }
 
-    /* チェック時に小さく跳ねる */
     .check-wrap input:checked ~ .check-box {
       background: #4f8ef7;
       border-color: #4f8ef7;
       animation: checkBounce 0.25s ease;
-    }
-
-    @keyframes checkBounce {
-      0%   { transform: scale(1); }
-      40%  { transform: scale(0.82); }
-      70%  { transform: scale(1.12); }
-      100% { transform: scale(1); }
     }
 
     .check-box::after {
@@ -219,7 +226,14 @@
 
     .check-wrap input:checked ~ .check-box::after { display: block; }
 
-    /* タスクテキスト（通常表示） */
+    @keyframes checkBounce {
+      0%   { transform: scale(1); }
+      40%  { transform: scale(0.82); }
+      70%  { transform: scale(1.12); }
+      100% { transform: scale(1); }
+    }
+
+    /* ── タスクテキスト ── */
     .task-text {
       flex: 1;
       font-size: 1.05rem;
@@ -230,10 +244,10 @@
       border-radius: 6px;
       padding: 4px 6px;
       margin: -4px -6px;
-      transition: background 0.15s, color 0.2s;
       min-height: 36px;
       display: flex;
       align-items: center;
+      transition: background 0.15s, color 0.2s;
     }
 
     .task-text:hover { background: #f0f6ff; }
@@ -244,7 +258,7 @@
       text-decoration-color: #c8d6e5;
     }
 
-    /* インライン編集フィールド */
+    /* ── インライン編集 ── */
     .inline-edit {
       flex: 1;
       font-size: 1.05rem;
@@ -256,7 +270,7 @@
       border-radius: 10px;
       outline: none;
       background: #fff;
-      box-shadow: 0 0 0 3px rgba(79, 142, 247, 0.12);
+      box-shadow: 0 0 0 3px rgba(79,142,247,0.12);
       animation: focusIn 0.15s ease;
     }
 
@@ -265,7 +279,7 @@
       to   { box-shadow: 0 0 0 3px rgba(79,142,247,0.12); }
     }
 
-    /* 削除ボタン */
+    /* ── 削除ボタン ── */
     .btn-delete {
       flex-shrink: 0;
       width: 44px;
@@ -283,12 +297,9 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .btn-delete:active {
-      background: #fde8e8;
-      color: #e05050;
-    }
+    .btn-delete:active { background: #fde8e8; color: #e05050; }
 
-    /* 空の状態 */
+    /* ── 空の状態 ── */
     .empty-msg {
       text-align: center;
       padding: 40px 20px;
@@ -296,13 +307,29 @@
       font-size: 0.95rem;
     }
 
-    .empty-msg .icon {
-      font-size: 2.5rem;
-      display: block;
-      margin-bottom: 10px;
+    .empty-msg .icon { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+    /* ── ローディング ── */
+    .loading-msg {
+      text-align: center;
+      padding: 40px 20px;
+      color: #b0bec5;
+      font-size: 0.9rem;
     }
 
-    /* フッター */
+    .loading-spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #e0e7ef;
+      border-top-color: #4f8ef7;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      animation: spin 0.75s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── フッター ── */
     .card-footer {
       display: flex;
       align-items: center;
@@ -313,10 +340,7 @@
       border-radius: 0 0 20px 20px;
     }
 
-    .count-text {
-      font-size: 0.82rem;
-      color: #7a8ba0;
-    }
+    .count-text { font-size: 0.82rem; color: #7a8ba0; }
 
     .btn-clear {
       font-size: 0.82rem;
@@ -333,7 +357,7 @@
 
     .btn-clear:active { background: #fde8e8; }
 
-    /* 編集ヒント */
+    /* ── 編集ヒント ── */
     .edit-hint {
       font-size: 0.72rem;
       color: #7a8ba0;
@@ -354,7 +378,11 @@
 
 <h1>
   やることリスト
-  <span id="date-label"></span>
+  <span class="date-text" id="date-label"></span>
+  <span class="sync-badge" id="sync-badge">
+    <span class="sync-dot"></span>
+    <span id="sync-text">接続中...</span>
+  </span>
 </h1>
 
 <div class="card">
@@ -379,252 +407,362 @@
   </div>
 </div>
 
-<script>
-  const newTaskInput = document.getElementById('task-input');
-  const addBtn       = document.getElementById('add-btn');
-  const taskList     = document.getElementById('task-list');
-  const countText    = document.getElementById('count-text');
-  const clearBtn     = document.getElementById('clear-done-btn');
-  const filterBtns   = document.querySelectorAll('.filter-btn');
-  const dateLabel    = document.getElementById('date-label');
-  const editHint     = document.getElementById('edit-hint');
+<!-- Firebase SDK (モジュール形式) -->
+<script type="module">
+import { initializeApp }
+  from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
+import {
+  initializeFirestore, persistentLocalCache,
+  collection, doc, setDoc, updateDoc, deleteDoc,
+  onSnapshot, query, orderBy, serverTimestamp, writeBatch
+} from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js';
 
-  let tasks       = JSON.parse(localStorage.getItem('tasks') || '[]');
-  let filter      = 'all';
-  let editingId   = null;
-  let newlyAddedId = null;
+/* ════════════════════════════════════════
+   Firebase 初期化
+════════════════════════════════════════ */
+const firebaseConfig = {
+  apiKey:            "AIzaSyDCJVXHYaTji9HXAONGjCoFtYQKhfyvTog",
+  authDomain:        "my-todo-1dee8.firebaseapp.com",
+  projectId:         "my-todo-1dee8",
+  storageBucket:     "my-todo-1dee8.firebasestorage.app",
+  messagingSenderId: "560316694293",
+  appId:             "1:560316694293:web:14c2150c2ada430b3ab31c"
+};
 
-  dateLabel.textContent = new Date().toLocaleDateString('ja-JP', {
-    year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+const app = initializeApp(firebaseConfig);
+
+// オフライン時も IndexedDB キャッシュから動作
+const db = initializeFirestore(app, {
+  localCache: persistentLocalCache()
+});
+
+/* ════════════════════════════════════════
+   DOM 参照
+════════════════════════════════════════ */
+const newTaskInput = document.getElementById('task-input');
+const addBtn       = document.getElementById('add-btn');
+const taskList     = document.getElementById('task-list');
+const countText    = document.getElementById('count-text');
+const clearBtn     = document.getElementById('clear-done-btn');
+const filterBtns   = document.querySelectorAll('.filter-btn');
+const dateLabel    = document.getElementById('date-label');
+const editHint     = document.getElementById('edit-hint');
+const syncBadge    = document.getElementById('sync-badge');
+const syncText     = document.getElementById('sync-text');
+
+/* ════════════════════════════════════════
+   状態
+════════════════════════════════════════ */
+let tasks            = [];   // Firestore から取得したタスク配列
+let filter           = 'all';
+let editingId        = null; // インライン編集中の doc ID
+let newlyAddedId     = null; // slideIn アニメーション対象
+let pendingFlipSnaps = null; // FLIP 用：変更前の位置スナップショット
+let isLoaded         = false;
+let prevDataHash     = '';   // 実データ変化の有無を判定
+
+/* ════════════════════════════════════════
+   同期バッジ
+════════════════════════════════════════ */
+function setSyncStatus(status) {
+  syncBadge.className = `sync-badge ${status}`;
+  syncText.textContent = {
+    loading: '接続中...',
+    syncing: '同期中...',
+    synced:  '同期済み',
+    offline: 'オフライン'
+  }[status] ?? status;
+}
+
+window.addEventListener('online',  () => setSyncStatus('syncing'));
+window.addEventListener('offline', () => setSyncStatus('offline'));
+
+/* ════════════════════════════════════════
+   ソート：未完了→完了済み（各グループ内は createdAt 降順を維持）
+════════════════════════════════════════ */
+function sortTasks() {
+  tasks.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+}
+
+/* ════════════════════════════════════════
+   Firestore リアルタイムリスナー
+   ── createdAt 降順で取得 → クライアント側でソート
+════════════════════════════════════════ */
+const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+
+onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+
+  // ── 同期バッジ更新 ──
+  if (!navigator.onLine) {
+    setSyncStatus('offline');
+  } else if (snapshot.metadata.hasPendingWrites) {
+    setSyncStatus('syncing');
+  } else if (snapshot.metadata.fromCache) {
+    setSyncStatus('offline');
+  } else {
+    setSyncStatus('synced');
+  }
+
+  // ── 実データが変化したときだけ再描画（メタデータのみ変化は無視） ──
+  const newHash = snapshot.docs
+    .map(d => `${d.id}:${d.data().text}:${d.data().done}`)
+    .join('|');
+
+  if (newHash === prevDataHash && isLoaded) return;
+  prevDataHash = newHash;
+
+  tasks = snapshot.docs.map(d => ({
+    id:        d.id,
+    text:      d.data().text   ?? '',
+    done:      d.data().done   ?? false,
+    createdAt: d.data().createdAt
+  }));
+
+  sortTasks();
+  isLoaded = true;
+  render();
+
+}, (err) => {
+  console.error('Firestore error:', err);
+  setSyncStatus('offline');
+});
+
+/* ════════════════════════════════════════
+   FLIP アニメーション付きチェック切り替え
+   1. 変更前に各行の位置を記録（FIRST）
+   2. Firestore を更新 → onSnapshot が render() を呼ぶ
+   3. render() 末尾で LAST→INVERT→PLAY を適用
+════════════════════════════════════════ */
+function animateCheck(taskId, newDone) {
+  pendingFlipSnaps = new Map();
+  taskList.querySelectorAll('li[data-id]').forEach(el => {
+    pendingFlipSnaps.set(el.dataset.id, el.getBoundingClientRect().top);
   });
+  updateDoc(doc(db, 'tasks', taskId), { done: newDone }).catch(console.error);
+}
 
-  function save() {
-    localStorage.setItem('tasks', JSON.stringify(tasks));
+/* ════════════════════════════════════════
+   インライン編集の確定
+════════════════════════════════════════ */
+async function commitEdit(taskId, newText) {
+  const trimmed = newText.trim();
+  editingId = null;
+  if (!trimmed) { render(); return; }
+  await updateDoc(doc(db, 'tasks', taskId), { text: trimmed }).catch(console.error);
+}
+
+/* ════════════════════════════════════════
+   タスク追加
+   ─ doc() で ID を事前生成 → newlyAddedId をセットしてから書き込み
+     （onSnapshot が先に発火しても is-new クラスが当たる）
+════════════════════════════════════════ */
+async function addTask() {
+  const text = newTaskInput.value.trim();
+  if (!text) { newTaskInput.focus(); return; }
+
+  // 編集中なら先に確定
+  if (editingId !== null) {
+    const inp = taskList.querySelector('.inline-edit');
+    if (inp) await commitEdit(editingId, inp.value);
+    else editingId = null;
   }
 
-  // 未完了を前、完了を後ろに — 各グループ内の相対順序は維持（安定ソート）
-  function sortTasks() {
-    tasks.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+  const newDocRef  = doc(collection(db, 'tasks')); // ID を事前生成
+  newlyAddedId     = newDocRef.id;
+  newTaskInput.value = '';
+  newTaskInput.focus();
+
+  await setDoc(newDocRef, {
+    text,
+    done:      false,
+    createdAt: serverTimestamp()
+  }).catch(console.error);
+}
+
+/* ════════════════════════════════════════
+   描画
+════════════════════════════════════════ */
+function render() {
+  taskList.innerHTML = '';
+  editHint.classList.toggle('visible', isLoaded && tasks.length > 0);
+
+  // ── ローディング中 ──
+  if (!isLoaded) {
+    const li = document.createElement('li');
+    li.className = 'loading-msg';
+    li.innerHTML = '<div class="loading-spinner"></div>データを読み込み中...';
+    taskList.appendChild(li);
+    countText.textContent = '';
+    return;
   }
 
-  function commitEdit(taskId, newText) {
-    const t = tasks.find(t => t.id === taskId);
-    if (!t) return;
-    const trimmed = newText.trim();
-    if (trimmed) t.text = trimmed;
-    editingId = null;
-    save();
-    render();
-  }
+  const visible = tasks.filter(t =>
+    filter === 'all'    ? true :
+    filter === 'active' ? !t.done : t.done
+  );
 
-  // ─── FLIP アニメーション付きでチェック状態を変更 ───────────────────
-  function animateCheck(task, newDone) {
-    // FIRST: 現在の各アイテムの位置を記録
-    const snapshots = new Map();
-    taskList.querySelectorAll('li[data-id]').forEach(el => {
-      snapshots.set(el.dataset.id, el.getBoundingClientRect().top);
+  // ── 空のメッセージ ──
+  if (visible.length === 0) {
+    const li = document.createElement('li');
+    li.className = 'empty-msg';
+    li.innerHTML =
+      `<span class="icon">${filter === 'done' ? '✅' : '📋'}</span>` +
+      (filter === 'done'   ? '完了済みのタスクはありません'  :
+       filter === 'active' ? 'やることはありません！'        :
+                             'タスクを追加してみましょう');
+    taskList.appendChild(li);
+
+  } else {
+    const firstDoneIdx = visible.findIndex(t => t.done);
+
+    visible.forEach((task, idx) => {
+      const li = document.createElement('li');
+      li.dataset.id = task.id;
+
+      let cls = 'task-item' + (task.done ? ' done' : '');
+      if (task.id === newlyAddedId) cls += ' is-new';
+      if (idx === firstDoneIdx)     cls += ' done-divider-above';
+      li.className = cls;
+
+      // ── チェックボックス ──
+      const checkWrap = document.createElement('label');
+      checkWrap.className = 'check-wrap';
+
+      const cb       = document.createElement('input');
+      cb.type        = 'checkbox';
+      cb.checked     = task.done;
+
+      cb.addEventListener('change', () => {
+        if (editingId === task.id) editingId = null;
+        animateCheck(task.id, cb.checked);
+      });
+
+      const box      = document.createElement('span');
+      box.className  = 'check-box';
+      checkWrap.appendChild(cb);
+      checkWrap.appendChild(box);
+
+      // ── テキスト or インライン編集 ──
+      if (editingId === task.id) {
+        const inp     = document.createElement('input');
+        inp.type      = 'text';
+        inp.className = 'inline-edit';
+        inp.value     = task.text;
+        inp.maxLength = 100;
+
+        inp.addEventListener('keydown', e => {
+          if (e.key === 'Enter')  { e.preventDefault(); commitEdit(task.id, inp.value); }
+          if (e.key === 'Escape') { editingId = null; render(); }
+        });
+        inp.addEventListener('blur', () => {
+          setTimeout(() => {
+            if (editingId === task.id) commitEdit(task.id, inp.value);
+          }, 120);
+        });
+
+        li.appendChild(checkWrap);
+        li.appendChild(inp);
+
+        requestAnimationFrame(() => {
+          inp.focus();
+          inp.setSelectionRange(inp.value.length, inp.value.length);
+        });
+      } else {
+        const span       = document.createElement('span');
+        span.className   = 'task-text';
+        span.textContent = task.text;
+        span.title       = 'タップして編集';
+
+        span.addEventListener('click', () => { editingId = task.id; render(); });
+        span.addEventListener('touchend', e => {
+          e.preventDefault();
+          editingId = task.id;
+          render();
+        }, { passive: false });
+
+        li.appendChild(checkWrap);
+        li.appendChild(span);
+      }
+
+      // ── 削除ボタン ──
+      const del       = document.createElement('button');
+      del.className   = 'btn-delete';
+      del.title       = '削除';
+      del.textContent = '×';
+      del.addEventListener('mousedown', () => { editingId = null; });
+      del.addEventListener('click', () => {
+        deleteDoc(doc(db, 'tasks', task.id)).catch(console.error);
+      });
+
+      li.appendChild(del);
+      taskList.appendChild(li);
     });
+  }
 
-    // 状態を更新してソート
-    task.done = newDone;
-    sortTasks();
-    save();
+  // ── FLIP: LAST → INVERT → PLAY ──
+  if (pendingFlipSnaps) {
+    const snaps   = pendingFlipSnaps;
+    pendingFlipSnaps = null;
 
-    // DOM を再描画
-    render();
-
-    // LAST → INVERT → PLAY
     requestAnimationFrame(() => {
       taskList.querySelectorAll('li[data-id]').forEach(el => {
-        const oldTop = snapshots.get(el.dataset.id);
-        if (oldTop === undefined) return; // 新規アイテムはスキップ
-        const newTop = el.getBoundingClientRect().top;
-        const delta  = oldTop - newTop;
-        if (Math.abs(delta) < 1) return; // 動いていないアイテムはスキップ
+        const oldTop = snaps.get(el.dataset.id);
+        if (oldTop === undefined) return;          // 新規追加はスキップ
+        const delta = oldTop - el.getBoundingClientRect().top;
+        if (Math.abs(delta) < 1) return;           // 移動なし
 
-        // Invert: 旧位置に見せる
         el.style.transition = 'none';
         el.style.transform  = `translateY(${delta}px)`;
-        // reflow を強制して transition が確実に適用されるようにする
-        void el.offsetHeight;
-        // Play: 自然な位置へスライド
-        el.style.transition = 'transform 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+        void el.offsetHeight;                      // reflow 強制
+        el.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
         el.style.transform  = '';
       });
     });
   }
 
-  // ─── 描画 ───────────────────────────────────────────────────────────
-  function render() {
-    taskList.innerHTML = '';
-    editHint.classList.toggle('visible', tasks.length > 0);
+  // 新規追加フラグをクリア
+  newlyAddedId = null;
 
-    const visible = tasks.filter(t =>
-      filter === 'all'    ? true :
-      filter === 'active' ? !t.done :
-                             t.done
-    );
+  // カウント表示
+  const total  = tasks.length;
+  const done   = tasks.filter(t => t.done).length;
+  const active = total - done;
+  countText.textContent = `未完了 ${active} 件 ／ 全 ${total} 件`;
+}
 
-    if (visible.length === 0) {
-      const msg = document.createElement('li');
-      msg.className = 'empty-msg';
-      msg.innerHTML =
-        `<span class="icon">${filter === 'done' ? '✅' : '📋'}</span>` +
-        (filter === 'done'   ? '完了済みのタスクはありません'  :
-         filter === 'active' ? 'やることはありません！'        :
-                               'タスクを追加してみましょう');
-      taskList.appendChild(msg);
-    } else {
-      // 完了済みの最初のアイテムに区切り線クラスを付与
-      const firstDoneIdx = visible.findIndex(t => t.done);
+/* ════════════════════════════════════════
+   イベント
+════════════════════════════════════════ */
+addBtn.addEventListener('click', addTask);
+newTaskInput.addEventListener('keydown', e => { if (e.key === 'Enter') addTask(); });
 
-      visible.forEach((task, idx) => {
-        const li = document.createElement('li');
-        li.dataset.id = task.id;
-
-        let cls = 'task-item' + (task.done ? ' done' : '');
-        if (task.id === newlyAddedId) cls += ' is-new';
-        if (idx === firstDoneIdx)     cls += ' done-divider-above';
-        li.className = cls;
-
-        // チェックボックス
-        const checkWrap = document.createElement('label');
-        checkWrap.className = 'check-wrap';
-        const cb  = document.createElement('input');
-        cb.type    = 'checkbox';
-        cb.checked = task.done;
-
-        cb.addEventListener('change', () => {
-          if (editingId === task.id) {
-            const inp = li.querySelector('.inline-edit');
-            if (inp) { editingId = null; } // 編集をキャンセルして移動優先
-          }
-          animateCheck(task, cb.checked);
-        });
-
-        const box = document.createElement('span');
-        box.className = 'check-box';
-        checkWrap.appendChild(cb);
-        checkWrap.appendChild(box);
-
-        // テキスト or インライン入力
-        if (editingId === task.id) {
-          const inp    = document.createElement('input');
-          inp.type      = 'text';
-          inp.className = 'inline-edit';
-          inp.value     = task.text;
-          inp.maxLength = 100;
-
-          inp.addEventListener('keydown', e => {
-            if (e.key === 'Enter')  { e.preventDefault(); commitEdit(task.id, inp.value); }
-            if (e.key === 'Escape') { editingId = null; render(); }
-          });
-          inp.addEventListener('blur', () => {
-            setTimeout(() => {
-              if (editingId === task.id) commitEdit(task.id, inp.value);
-            }, 120);
-          });
-
-          li.appendChild(checkWrap);
-          li.appendChild(inp);
-
-          requestAnimationFrame(() => {
-            inp.focus();
-            inp.setSelectionRange(inp.value.length, inp.value.length);
-          });
-        } else {
-          const span        = document.createElement('span');
-          span.className    = 'task-text';
-          span.textContent  = task.text;
-          span.title        = 'タップして編集';
-
-          span.addEventListener('click', () => {
-            editingId = task.id;
-            render();
-          });
-          span.addEventListener('touchend', e => {
-            e.preventDefault();
-            editingId = task.id;
-            render();
-          }, { passive: false });
-
-          li.appendChild(checkWrap);
-          li.appendChild(span);
-        }
-
-        // 削除ボタン
-        const del     = document.createElement('button');
-        del.className = 'btn-delete';
-        del.title     = '削除';
-        del.textContent = '×';
-        del.addEventListener('mousedown', () => { editingId = null; });
-        del.addEventListener('click', () => {
-          tasks = tasks.filter(t => t.id !== task.id);
-          save();
-          render();
-        });
-
-        li.appendChild(del);
-        taskList.appendChild(li);
-      });
-    }
-
-    // 新規追加フラグをクリア
-    newlyAddedId = null;
-
-    const total  = tasks.length;
-    const done   = tasks.filter(t => t.done).length;
-    const active = total - done;
-    countText.textContent = `未完了 ${active} 件 ／ 全 ${total} 件`;
-  }
-
-  function addTask() {
-    const text = newTaskInput.value.trim();
-    if (!text) { newTaskInput.focus(); return; }
-    if (editingId !== null) {
-      const inp = taskList.querySelector('.inline-edit');
-      if (inp) commitEdit(editingId, inp.value);
-      else editingId = null;
-    }
-    const newId = Date.now();
-    newlyAddedId = newId;
-    tasks.unshift({ id: newId, text, done: false });
-    // 追加後もソート順を維持（未完了は先頭グループへ）
-    sortTasks();
-    save();
+filterBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    filterBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filter = btn.dataset.filter;
     render();
-    newTaskInput.value = '';
-    newTaskInput.focus();
-  }
-
-  addBtn.addEventListener('click', addTask);
-  newTaskInput.addEventListener('keydown', e => {
-    if (e.key === 'Enter') addTask();
   });
+});
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      filter = btn.dataset.filter;
-      render();
-    });
-  });
+clearBtn.addEventListener('click', async () => {
+  const doneTasks = tasks.filter(t => t.done);
+  if (!doneTasks.length) return;
+  if (!confirm(`完了済みの ${doneTasks.length} 件を削除しますか？`)) return;
 
-  clearBtn.addEventListener('click', () => {
-    const doneCount = tasks.filter(t => t.done).length;
-    if (doneCount === 0) return;
-    if (confirm(`完了済みの ${doneCount} 件を削除しますか？`)) {
-      tasks = tasks.filter(t => !t.done);
-      editingId = null;
-      save();
-      render();
-    }
-  });
+  // writeBatch で一括削除（最大 500 件）
+  const batch = writeBatch(db);
+  doneTasks.forEach(t => batch.delete(doc(db, 'tasks', t.id)));
+  await batch.commit().catch(console.error);
+});
 
-  // 初回ソートして表示
-  sortTasks();
-  render();
+/* ── 日付表示 ── */
+dateLabel.textContent = new Date().toLocaleDateString('ja-JP', {
+  year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
+});
+
+// 初期ローディング表示
+render();
 </script>
 </body>
 </html>
