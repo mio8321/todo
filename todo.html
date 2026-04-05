@@ -10,43 +10,40 @@
     <style>
         :root { --primary: #4a90e2; --bg: #f0f4f8; }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: sans-serif; background: var(--bg); padding: 20px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 12px; shadow: 0 4px 6px rgba(0,0,0,0.1); }
-        h1 { text-align: center; margin-bottom: 20px; font-size: 1.5rem; }
-        .input-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        input[type="text"] { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
-        button { padding: 10px 15px; border: none; border-radius: 6px; cursor: pointer; background: var(--primary); color: white; }
+        body { font-family: sans-serif; background: var(--bg); padding: 16px; color: #333; line-height: 1.6; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.05); }
+        h1 { text-align: center; margin-bottom: 20px; font-size: 1.4rem; color: #1a1a2e; }
+        .input-group { display: flex; gap: 8px; margin-bottom: 20px; }
+        input[type="text"] { flex: 1; padding: 14px; border: 2px solid #edf2f7; border-radius: 12px; font-size: 16px; transition: border-color 0.2s; }
+        input[type="text"]:focus { outline: none; border-color: var(--primary); }
+        .btn-add { padding: 0 20px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
         
-        /* リストとタスクのデザイン */
         .todo-item { 
-            display: flex; align-items: center; padding: 12px; 
-            border-bottom: 1px solid #eee; background: white; gap: 10px;
+            display: flex; align-items: center; padding: 14px; 
+            background: #fff; border: 1px solid #f0f0f0; border-radius: 12px; margin-bottom: 8px; gap: 12px;
         }
-        /* 並べ替えハンドル（ここを掴む！） */
-        .handle { cursor: grab; color: #ccc; font-size: 20px; padding: 0 5px; user-select: none; }
-        .todo-text { flex: 1; font-size: 16px; word-break: break-all; }
-        .todo-text.done { text-decoration: line-through; color: #888; }
+        .handle { cursor: grab; color: #cbd5e0; font-size: 20px; padding: 0 4px; user-select: none; }
+        .todo-text { flex: 1; font-size: 16px; }
+        .todo-text.done { text-decoration: line-through; color: #a0aec0; }
         
-        /* 編集・削除ボタン */
-        .btn-edit { background: none; color: var(--primary); font-size: 18px; padding: 5px; }
-        .btn-delete { background: none; color: #e74c3c; font-size: 18px; padding: 5px; }
+        .btn-edit { background: #f8fafc; color: #64748b; border-radius: 8px; padding: 8px; border: none; }
+        .btn-delete { background: #fff5f5; color: #f56565; border-radius: 8px; padding: 8px; border: none; font-weight: bold; }
         
-        .edit-input { flex: 1; padding: 8px; font-size: 16px; border: 1px solid var(--primary); border-radius: 4px; }
+        .edit-input { flex: 1; padding: 10px; font-size: 16px; border: 2px solid var(--primary); border-radius: 8px; outline: none; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>やることリスト</h1>
+    <h1 id="listTitle">読み込み中...</h1>
     <div class="input-group">
         <input type="text" id="newTodo" placeholder="新しいタスクを入力...">
-        <button onclick="addTodo()">追加</button>
+        <button class="btn-add" onclick="addTodo()">追加</button>
     </div>
     <div id="todoList"></div>
 </div>
 
 <script>
-    // ⚠️ ここに「5-6.png」で映っていたあなたの設定値を貼り付けてください
     const firebaseConfig = {
         apiKey: "AIzaSyDVJXHYaTji9HXAONGjCoFtYQKhfyvTog",
         authDomain: "my-todo-1dee8.firebaseapp.com",
@@ -59,43 +56,68 @@
     const app = firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore(app);
     const todoListEl = document.getElementById('todoList');
+    
+    // 既存のリストID（Claude版のデフォルトID）を指定
+    const currentListId = 'default-list'; 
+    document.getElementById('listTitle').innerText = 'やることリスト';
 
-    // 読み込みと表示
     function renderTodos() {
-        db.collection("tasks").orderBy("order", "asc").onSnapshot((snapshot) => {
-            todoListEl.innerHTML = '';
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const div = document.createElement('div');
-                div.className = 'todo-item';
-                div.setAttribute('data-id', doc.id);
-                
-                div.innerHTML = `
-                    <div class="handle">⠿</div>
-                    <input type="checkbox" ${data.done ? 'checked' : ''} onclick="toggleDone('${doc.id}', ${data.done})">
-                    <span class="todo-text ${data.done ? 'done' : ''}">${data.text}</span>
-                    <button class="btn-edit" onclick="startEdit('${doc.id}', '${data.text.replace(/'/g, "\\'")}')">✎</button>
-                    <button class="btn-delete" onclick="deleteTodo('${doc.id}')">×</button>
-                `;
-                todoListEl.appendChild(div);
-            });
+        // Claude版のデータ構造（tasksコレクション内のlistIdでフィルタ）に合わせて取得
+        db.collection("tasks")
+          .where("listId", "==", currentListId)
+          .orderBy("order", "asc")
+          .onSnapshot((snapshot) => {
+            // もしデータが1つも取れなかった場合、古い形式（listIdなし）も探す
+            if (snapshot.empty) {
+                db.collection("tasks").orderBy("order", "asc").get().then(snap => {
+                    updateUI(snap);
+                });
+            } else {
+                updateUI(snapshot);
+            }
         });
     }
 
-    // 文字編集モード
+    function updateUI(snapshot) {
+        todoListEl.innerHTML = '';
+        snapshot.forEach((doc) => {
+            const data = doc.data();
+            const div = document.createElement('div');
+            div.className = 'todo-item';
+            div.setAttribute('data-id', doc.id);
+            
+            div.innerHTML = `
+                <div class="handle">⠿</div>
+                <input type="checkbox" style="width:20px;height:20px;" ${data.done ? 'checked' : ''} onclick="toggleDone('${doc.id}', ${data.done})">
+                <span class="todo-text ${data.done ? 'done' : ''}">${data.text}</span>
+                <button class="btn-edit" onclick="startEdit('${doc.id}', '${data.text.replace(/'/g, "\\'")}')">✎</button>
+                <button class="btn-delete" onclick="deleteTodo('${doc.id}')">×</button>
+            `;
+            todoListEl.appendChild(div);
+        });
+    }
+
+    // --- 以降、基本機能は維持 ---
+    async function addTodo() {
+        const text = document.getElementById('newTodo').value;
+        if (!text) return;
+        const snapshot = await db.collection("tasks").where("listId", "==", currentListId).get();
+        await db.collection("tasks").add({
+            text: text, done: false, order: snapshot.size, listId: currentListId, createdAt: new Date()
+        });
+        document.getElementById('newTodo').value = '';
+    }
+
     function startEdit(id, oldText) {
         const item = document.querySelector(`[data-id="${id}"]`);
         const textSpan = item.querySelector('.todo-text');
         const editBtn = item.querySelector('.btn-edit');
-        
         const input = document.createElement('input');
         input.type = 'text';
         input.className = 'edit-input';
         input.value = oldText;
-        
         item.replaceChild(input, textSpan);
         editBtn.style.display = 'none';
-        
         input.focus();
         input.onblur = () => finishEdit(id, input.value);
         input.onkeydown = (e) => { if(e.key === 'Enter') finishEdit(id, input.value); };
@@ -106,21 +128,9 @@
         renderTodos();
     }
 
-    // 追加・削除・完了・並べ替えの基本機能
-    async function addTodo() {
-        const text = document.getElementById('newTodo').value;
-        if (!text) return;
-        const snapshot = await db.collection("tasks").get();
-        await db.collection("tasks").add({
-            text: text, done: false, order: snapshot.size, createdAt: new Date()
-        });
-        document.getElementById('newTodo').value = '';
-    }
-
     function toggleDone(id, current) { db.collection("tasks").doc(id).update({ done: !current }); }
     function deleteTodo(id) { if(confirm('消去しますか？')) db.collection("tasks").doc(id).delete(); }
 
-    // 並べ替え（ハンドルだけで動くように設定）
     new Sortable(todoListEl, {
         handle: '.handle',
         animation: 150,
