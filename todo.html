@@ -21,7 +21,7 @@
       font-size: 1.6rem;
       font-weight: 700;
       color: #1a1a2e;
-      margin-bottom: 24px;
+      margin-bottom: 20px;
       letter-spacing: 0.05em;
     }
 
@@ -56,14 +56,9 @@
 
     .sync-badge.synced  .sync-dot { background: #4caf82; }
     .sync-badge.synced             { color: #4caf82; }
-
-    .sync-badge.syncing .sync-dot {
-      background: #f59e0b;
-      animation: dotPulse 1s ease-in-out infinite;
-    }
-    .sync-badge.syncing { color: #f59e0b; }
-
-    .sync-badge.offline .sync-dot { background: #b0bec5; }
+    .sync-badge.syncing .sync-dot  { background: #f59e0b; animation: dotPulse 1s ease-in-out infinite; }
+    .sync-badge.syncing            { color: #f59e0b; }
+    .sync-badge.offline .sync-dot  { background: #b0bec5; }
 
     @keyframes dotPulse {
       0%, 100% { opacity: 1;   transform: scale(1); }
@@ -79,11 +74,118 @@
       margin: 0 auto;
     }
 
-    /* ── 入力エリア ── */
+    /* ══════════════════════════════════
+       リストタブバー
+    ══════════════════════════════════ */
+    .lists-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 16px 12px;
+      border-bottom: 1px solid #eef1f5;
+      border-radius: 20px 20px 0 0;
+      background: #fff;
+    }
+
+    /* 横スクロール */
+    .lists-scroll {
+      flex: 1;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      padding-bottom: 2px;
+    }
+
+    .lists-scroll::-webkit-scrollbar { display: none; }
+
+    /* タブ */
+    .list-tab {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 14px;
+      height: 40px;
+      background: #f0f4f8;
+      border: 1.5px solid transparent;
+      border-radius: 20px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .list-tab.active {
+      background: #eef3fd;
+      border-color: #4f8ef7;
+      color: #4f8ef7;
+    }
+
+    .list-tab-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: inherit;
+    }
+
+    .list-tab:not(.active) .list-tab-name { color: #7a8ba0; }
+
+    /* タブ内の削除ボタン */
+    .list-tab-del {
+      width: 20px;
+      height: 20px;
+      background: rgba(0,0,0,0.08);
+      border: none;
+      border-radius: 50%;
+      font-size: 0.78rem;
+      line-height: 1;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #7a8ba0;
+      padding: 0;
+      transition: background 0.15s, color 0.15s;
+      -webkit-tap-highlight-color: transparent;
+      flex-shrink: 0;
+    }
+
+    .list-tab.active .list-tab-del {
+      background: rgba(79,142,247,0.15);
+      color: #4f8ef7;
+    }
+
+    .list-tab-del:active { background: #fde8e8 !important; color: #e05050 !important; }
+
+    /* リスト追加ボタン */
+    .btn-add-list {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      background: #eef3fd;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.3rem;
+      color: #4f8ef7;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      transition: background 0.15s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .btn-add-list:active { background: #dce9fd; transform: scale(0.93); }
+
+    /* ══════════════════════════════════
+       入力エリア
+    ══════════════════════════════════ */
     .input-area {
       display: flex;
       gap: 10px;
-      padding: 20px 20px 16px;
+      padding: 16px 20px 14px;
       border-bottom: 1px solid #eef1f5;
     }
 
@@ -91,7 +193,7 @@
       flex: 1;
       font-size: 1rem;
       font-family: inherit;
-      padding: 14px 16px;
+      padding: 13px 16px;
       border: 2px solid #e0e7ef;
       border-radius: 12px;
       outline: none;
@@ -109,7 +211,7 @@
     }
 
     .btn-add {
-      padding: 14px 20px;
+      padding: 13px 20px;
       background: #4f8ef7;
       color: #fff;
       border: none;
@@ -128,13 +230,13 @@
     /* ── フィルター ── */
     .filter-bar {
       display: flex;
-      padding: 12px 20px;
+      padding: 10px 20px;
       border-bottom: 1px solid #eef1f5;
     }
 
     .filter-btn {
       flex: 1;
-      padding: 10px 0;
+      padding: 9px 0;
       background: none;
       border: none;
       font-size: 0.85rem;
@@ -149,28 +251,63 @@
 
     .filter-btn.active { background: #eef3fd; color: #4f8ef7; font-weight: 700; }
 
-    /* ── タスクリスト ── */
+    /* ══════════════════════════════════
+       タスクリスト
+    ══════════════════════════════════ */
     .task-list {
       list-style: none;
       padding: 4px 0;
       min-height: 80px;
-      overflow: hidden;
     }
 
     /* ── タスク行 ── */
     .task-item {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 18px 20px;
+      gap: 10px;
+      padding: 15px 16px 15px 8px;
       border-bottom: 1px solid #f3f6fa;
-      will-change: transform;
     }
 
     .task-item:last-child { border-bottom: none; }
+    .task-item.is-new { animation: slideIn 0.2s ease forwards; }
 
-    .task-item.is-new    { animation: slideIn 0.2s ease forwards; }
-    .task-item.done-divider-above { border-top: 1px solid #dde8f5; }
+    /* ══════════════════════════════════
+       ドラッグハンドル
+    ══════════════════════════════════ */
+    .drag-handle {
+      flex-shrink: 0;
+      width: 28px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      color: #c8d6e5;
+      touch-action: none;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .drag-handle:hover  { color: #7a8ba0; background: #f0f4f8; }
+    .drag-handle:active { cursor: grabbing; }
+
+    /* SortableJS 状態 */
+    .drag-ghost  { opacity: 0.35; background: #eef3fd !important; border-radius: 10px; }
+    .drag-chosen { background: #f5f9ff; }
+
+    /* ドラッグ中はテキスト選択を防止 */
+    .sortable-drag { box-shadow: 0 4px 20px rgba(0,0,0,0.12); border-radius: 10px; }
+
+    /* ── セクション区切り線（完了前後） ── */
+    .section-divider {
+      height: 0;
+      border-top: 1.5px solid #dde8f5;
+      margin: 2px 16px;
+      list-style: none;
+      pointer-events: none;
+    }
 
     /* ── チェックボックス ── */
     .check-wrap {
@@ -181,7 +318,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      margin: -8px -6px -8px -8px;
+      margin: -6px -4px -6px -6px;
       border-radius: 10px;
       -webkit-tap-highlight-color: transparent;
     }
@@ -252,7 +389,7 @@
 
     .task-text:hover { background: #f0f6ff; }
 
-    .task-item.done .task-text {
+    .task-item.task-done .task-text {
       color: #b0bec5;
       text-decoration: line-through;
       text-decoration-color: #c8d6e5;
@@ -334,7 +471,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 14px 20px;
+      padding: 13px 20px;
       border-top: 1px solid #eef1f5;
       background: #fafbfd;
       border-radius: 0 0 20px 20px;
@@ -362,7 +499,7 @@
       font-size: 0.72rem;
       color: #7a8ba0;
       text-align: center;
-      padding: 0 20px 10px;
+      padding: 0 20px 8px;
       display: none;
     }
 
@@ -386,28 +523,42 @@
 </h1>
 
 <div class="card">
+
+  <!-- ① リストタブバー -->
+  <div class="lists-bar">
+    <div class="lists-scroll" id="lists-scroll"></div>
+    <button class="btn-add-list" id="add-list-btn" title="新しいリストを追加">＋</button>
+  </div>
+
+  <!-- ② タスク入力 -->
   <div class="input-area">
     <input type="text" id="task-input" placeholder="新しいタスクを入力..." maxlength="100">
     <button class="btn-add" id="add-btn" title="追加">＋</button>
   </div>
 
+  <!-- ③ フィルター -->
   <div class="filter-bar">
     <button class="filter-btn active" data-filter="all">すべて</button>
     <button class="filter-btn" data-filter="active">未完了</button>
     <button class="filter-btn" data-filter="done">完了済み</button>
   </div>
 
+  <!-- ④ タスクリスト -->
   <ul class="task-list" id="task-list"></ul>
 
-  <p class="edit-hint" id="edit-hint">テキストをタップして編集 · Enter または他の場所をタップで保存</p>
+  <p class="edit-hint" id="edit-hint">テキストをタップして編集 · ≡ をドラッグして並べ替え</p>
 
+  <!-- ⑤ フッター -->
   <div class="card-footer">
     <span class="count-text" id="count-text"></span>
     <button class="btn-clear" id="clear-done-btn">完了済みを削除</button>
   </div>
+
 </div>
 
-<!-- Firebase SDK (モジュール形式) -->
+<!-- SortableJS (通常スクリプトとして読み込み → グローバル Sortable を使用) -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
+
 <script type="module">
 import { initializeApp }
   from 'https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js';
@@ -430,15 +581,13 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
-// オフライン時も IndexedDB キャッシュから動作
-const db = initializeFirestore(app, {
-  localCache: persistentLocalCache()
-});
+const db  = initializeFirestore(app, { localCache: persistentLocalCache() });
 
 /* ════════════════════════════════════════
    DOM 参照
 ════════════════════════════════════════ */
+const listsScroll  = document.getElementById('lists-scroll');
+const addListBtn   = document.getElementById('add-list-btn');
 const newTaskInput = document.getElementById('task-input');
 const addBtn       = document.getElementById('add-btn');
 const taskList     = document.getElementById('task-list');
@@ -453,13 +602,18 @@ const syncText     = document.getElementById('sync-text');
 /* ════════════════════════════════════════
    状態
 ════════════════════════════════════════ */
-let tasks            = [];   // Firestore から取得したタスク配列
-let filter           = 'all';
-let editingId        = null; // インライン編集中の doc ID
-let newlyAddedId     = null; // slideIn アニメーション対象
-let pendingFlipSnaps = null; // FLIP 用：変更前の位置スナップショット
-let isLoaded         = false;
-let prevDataHash     = '';   // 実データ変化の有無を判定
+let allLists      = [];
+let allTasks      = [];
+let currentListId = null;
+let listsLoaded   = false;
+let tasksLoaded   = false;
+let filter        = 'all';
+let editingId     = null;
+let newlyAddedId  = null;
+let isDragging    = false;
+let sortableInst  = null;
+let prevListsHash = '';
+let prevTasksHash = '';
 
 /* ════════════════════════════════════════
    同期バッジ
@@ -478,67 +632,198 @@ window.addEventListener('online',  () => setSyncStatus('syncing'));
 window.addEventListener('offline', () => setSyncStatus('offline'));
 
 /* ════════════════════════════════════════
-   ソート：未完了→完了済み（各グループ内は createdAt 降順を維持）
+   Firestore リスナー ① — リスト一覧
 ════════════════════════════════════════ */
-function sortTasks() {
-  tasks.sort((a, b) => (a.done ? 1 : 0) - (b.done ? 1 : 0));
+onSnapshot(
+  query(collection(db, 'lists'), orderBy('createdAt', 'asc')),
+  async (snapshot) => {
+    const newHash = snapshot.docs.map(d => d.id + d.data().title).join('|');
+    if (newHash === prevListsHash && listsLoaded) return;
+    prevListsHash = newHash;
+
+    allLists = snapshot.docs.map(d => ({ id: d.id, title: d.data().title ?? '無題' }));
+
+    if (allLists.length === 0) {
+      await createDefaultList();
+      return;
+    }
+
+    listsLoaded = true;
+
+    if (!currentListId || !allLists.find(l => l.id === currentListId)) {
+      currentListId = allLists[0].id;
+    }
+
+    renderLists();
+    if (tasksLoaded) renderTasks();
+  },
+  err => { console.error('lists error:', err); setSyncStatus('offline'); }
+);
+
+/* ════════════════════════════════════════
+   Firestore リスナー ② — 全タスク
+════════════════════════════════════════ */
+onSnapshot(
+  collection(db, 'tasks'),
+  { includeMetadataChanges: true },
+  (snapshot) => {
+    if (!navigator.onLine)                       setSyncStatus('offline');
+    else if (snapshot.metadata.hasPendingWrites) setSyncStatus('syncing');
+    else if (snapshot.metadata.fromCache)        setSyncStatus('offline');
+    else                                         setSyncStatus('synced');
+
+    const newHash = snapshot.docs
+      .map(d => `${d.id}:${d.data().text}:${d.data().done}:${d.data().order}:${d.data().listId}`)
+      .join('|');
+    if (newHash === prevTasksHash) return;
+    prevTasksHash = newHash;
+
+    allTasks = snapshot.docs.map((d, i) => ({
+      id:        d.id,
+      text:      d.data().text      ?? '',
+      done:      d.data().done      ?? false,
+      listId:    d.data().listId    ?? null,
+      order:     d.data().order     ?? i,
+      createdAt: d.data().createdAt
+    }));
+
+    tasksLoaded = true;
+    if (listsLoaded && !isDragging) renderTasks();
+  },
+  err => { console.error('tasks error:', err); setSyncStatus('offline'); }
+);
+
+/* ════════════════════════════════════════
+   デフォルトリスト作成 + 旧タスクの移行
+════════════════════════════════════════ */
+async function createDefaultList() {
+  const listRef = doc(collection(db, 'lists'));
+  await setDoc(listRef, { title: 'メイン', createdAt: serverTimestamp() });
+
+  const orphans = allTasks.filter(t => !t.listId);
+  if (orphans.length > 0) {
+    const batch = writeBatch(db);
+    orphans.forEach((t, i) => {
+      batch.update(doc(db, 'tasks', t.id), { listId: listRef.id, order: i });
+    });
+    await batch.commit();
+  }
+
+  currentListId = listRef.id;
 }
 
 /* ════════════════════════════════════════
-   Firestore リアルタイムリスナー
-   ── createdAt 降順で取得 → クライアント側でソート
+   リストタブ描画
 ════════════════════════════════════════ */
-const q = query(collection(db, 'tasks'), orderBy('createdAt', 'desc'));
+function renderLists() {
+  listsScroll.innerHTML = '';
 
-onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
+  allLists.forEach(list => {
+    const tab = document.createElement('div');
+    tab.className = 'list-tab' + (list.id === currentListId ? ' active' : '');
+    tab.dataset.listId = list.id;
 
-  // ── 同期バッジ更新 ──
-  if (!navigator.onLine) {
-    setSyncStatus('offline');
-  } else if (snapshot.metadata.hasPendingWrites) {
-    setSyncStatus('syncing');
-  } else if (snapshot.metadata.fromCache) {
-    setSyncStatus('offline');
-  } else {
-    setSyncStatus('synced');
-  }
+    const name = document.createElement('span');
+    name.className   = 'list-tab-name';
+    name.textContent = list.title;
+    name.addEventListener('dblclick', e => { e.stopPropagation(); renameList(list); });
 
-  // ── 実データが変化したときだけ再描画（メタデータのみ変化は無視） ──
-  const newHash = snapshot.docs
-    .map(d => `${d.id}:${d.data().text}:${d.data().done}`)
-    .join('|');
+    const del = document.createElement('button');
+    del.className   = 'list-tab-del';
+    del.textContent = '×';
+    del.title       = 'リストを削除';
+    del.addEventListener('click', e => { e.stopPropagation(); deleteList(list); });
 
-  if (newHash === prevDataHash && isLoaded) return;
-  prevDataHash = newHash;
+    tab.appendChild(name);
+    tab.appendChild(del);
+    tab.addEventListener('click', () => selectList(list.id));
+    listsScroll.appendChild(tab);
+  });
 
-  tasks = snapshot.docs.map(d => ({
-    id:        d.id,
-    text:      d.data().text   ?? '',
-    done:      d.data().done   ?? false,
-    createdAt: d.data().createdAt
-  }));
-
-  sortTasks();
-  isLoaded = true;
-  render();
-
-}, (err) => {
-  console.error('Firestore error:', err);
-  setSyncStatus('offline');
-});
+  const active = listsScroll.querySelector('.list-tab.active');
+  if (active) active.scrollIntoView({ inline: 'nearest', behavior: 'smooth', block: 'nearest' });
+}
 
 /* ════════════════════════════════════════
-   FLIP アニメーション付きチェック切り替え
-   1. 変更前に各行の位置を記録（FIRST）
-   2. Firestore を更新 → onSnapshot が render() を呼ぶ
-   3. render() 末尾で LAST→INVERT→PLAY を適用
+   リスト操作
 ════════════════════════════════════════ */
-function animateCheck(taskId, newDone) {
-  pendingFlipSnaps = new Map();
-  taskList.querySelectorAll('li[data-id]').forEach(el => {
-    pendingFlipSnaps.set(el.dataset.id, el.getBoundingClientRect().top);
-  });
-  updateDoc(doc(db, 'tasks', taskId), { done: newDone }).catch(console.error);
+function selectList(listId) {
+  if (currentListId === listId) return;
+  currentListId = listId;
+  editingId     = null;
+  renderLists();
+  renderTasks();
+}
+
+addListBtn.addEventListener('click', async () => {
+  const title = prompt('新しいリスト名を入力してください', '新しいリスト');
+  if (!title?.trim()) return;
+  const listRef = doc(collection(db, 'lists'));
+  await setDoc(listRef, { title: title.trim(), createdAt: serverTimestamp() })
+    .catch(console.error);
+  currentListId = listRef.id;
+});
+
+async function renameList(list) {
+  const newTitle = prompt('リスト名を変更', list.title);
+  if (!newTitle?.trim() || newTitle.trim() === list.title) return;
+  await updateDoc(doc(db, 'lists', list.id), { title: newTitle.trim() }).catch(console.error);
+}
+
+async function deleteList(list) {
+  if (allLists.length <= 1) {
+    alert('最後のリストは削除できません');
+    return;
+  }
+  const taskCount = allTasks.filter(t => t.listId === list.id).length;
+  const msg = taskCount > 0
+    ? `「${list.title}」とその中の ${taskCount} 件のタスクをすべて削除しますか？`
+    : `「${list.title}」を削除しますか？`;
+  if (!confirm(msg)) return;
+
+  if (currentListId === list.id) {
+    currentListId = allLists.find(l => l.id !== list.id)?.id ?? null;
+  }
+
+  const batch = writeBatch(db);
+  allTasks.filter(t => t.listId === list.id)
+    .forEach(t => batch.delete(doc(db, 'tasks', t.id)));
+  batch.delete(doc(db, 'lists', list.id));
+  await batch.commit().catch(console.error);
+}
+
+/* ════════════════════════════════════════
+   現在リストのタスクを取得（ソート済み）
+   並び順: done ASC → order ASC
+════════════════════════════════════════ */
+function getListTasks() {
+  return allTasks
+    .filter(t => t.listId === currentListId)
+    .sort((a, b) => {
+      if (a.done !== b.done) return (a.done ? 1 : 0) - (b.done ? 1 : 0);
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+}
+
+/* ════════════════════════════════════════
+   チェック ON/OFF — 自動でグループ末尾へ移動
+════════════════════════════════════════ */
+async function handleCheck(taskId, newDone) {
+  const listTasks = allTasks.filter(t => t.listId === currentListId);
+  let newOrder;
+
+  if (newDone) {
+    const doneOrders = listTasks.filter(t => t.done && t.id !== taskId).map(t => t.order ?? 0);
+    newOrder = doneOrders.length > 0
+      ? Math.max(...doneOrders) + 1
+      : Math.max(...listTasks.map(t => t.order ?? 0), 0) + 1;
+  } else {
+    const activeOrders = listTasks.filter(t => !t.done && t.id !== taskId).map(t => t.order ?? 0);
+    newOrder = activeOrders.length > 0 ? Math.min(...activeOrders) - 1 : 0;
+  }
+
+  await updateDoc(doc(db, 'tasks', taskId), { done: newDone, order: newOrder })
+    .catch(console.error);
 }
 
 /* ════════════════════════════════════════
@@ -547,27 +832,28 @@ function animateCheck(taskId, newDone) {
 async function commitEdit(taskId, newText) {
   const trimmed = newText.trim();
   editingId = null;
-  if (!trimmed) { render(); return; }
+  if (!trimmed) { renderTasks(); return; }
   await updateDoc(doc(db, 'tasks', taskId), { text: trimmed }).catch(console.error);
 }
 
 /* ════════════════════════════════════════
-   タスク追加
-   ─ doc() で ID を事前生成 → newlyAddedId をセットしてから書き込み
-     （onSnapshot が先に発火しても is-new クラスが当たる）
+   タスク追加 — 未完了グループの先頭へ
 ════════════════════════════════════════ */
 async function addTask() {
   const text = newTaskInput.value.trim();
-  if (!text) { newTaskInput.focus(); return; }
+  if (!text || !currentListId) { newTaskInput.focus(); return; }
 
-  // 編集中なら先に確定
   if (editingId !== null) {
     const inp = taskList.querySelector('.inline-edit');
     if (inp) await commitEdit(editingId, inp.value);
     else editingId = null;
   }
 
-  const newDocRef  = doc(collection(db, 'tasks')); // ID を事前生成
+  const listTasks    = allTasks.filter(t => t.listId === currentListId && !t.done);
+  const activeOrders = listTasks.map(t => t.order ?? 0);
+  const minOrder     = activeOrders.length > 0 ? Math.min(...activeOrders) - 1 : 0;
+
+  const newDocRef  = doc(collection(db, 'tasks'));
   newlyAddedId     = newDocRef.id;
   newTaskInput.value = '';
   newTaskInput.focus();
@@ -575,33 +861,37 @@ async function addTask() {
   await setDoc(newDocRef, {
     text,
     done:      false,
+    listId:    currentListId,
+    order:     minOrder,
     createdAt: serverTimestamp()
   }).catch(console.error);
 }
 
 /* ════════════════════════════════════════
-   描画
+   タスクリスト描画
 ════════════════════════════════════════ */
-function render() {
+function renderTasks() {
+  if (sortableInst) { sortableInst.destroy(); sortableInst = null; }
   taskList.innerHTML = '';
-  editHint.classList.toggle('visible', isLoaded && tasks.length > 0);
 
-  // ── ローディング中 ──
-  if (!isLoaded) {
+  if (!listsLoaded || !tasksLoaded || !currentListId) {
     const li = document.createElement('li');
     li.className = 'loading-msg';
     li.innerHTML = '<div class="loading-spinner"></div>データを読み込み中...';
     taskList.appendChild(li);
     countText.textContent = '';
+    editHint.classList.remove('visible');
     return;
   }
 
-  const visible = tasks.filter(t =>
+  const allListTasks = getListTasks();
+  editHint.classList.toggle('visible', allListTasks.length > 0);
+
+  const visible = allListTasks.filter(t =>
     filter === 'all'    ? true :
     filter === 'active' ? !t.done : t.done
   );
 
-  // ── 空のメッセージ ──
   if (visible.length === 0) {
     const li = document.createElement('li');
     li.className = 'empty-msg';
@@ -611,58 +901,72 @@ function render() {
        filter === 'active' ? 'やることはありません！'        :
                              'タスクを追加してみましょう');
     taskList.appendChild(li);
-
   } else {
-    const firstDoneIdx = visible.findIndex(t => t.done);
+    let prevDone = null;
 
-    visible.forEach((task, idx) => {
+    visible.forEach(task => {
+      if (prevDone === false && task.done === true) {
+        const divider = document.createElement('li');
+        divider.className = 'section-divider';
+        divider.dataset.noDrag = 'true';
+        taskList.appendChild(divider);
+      }
+      prevDone = task.done;
+
       const li = document.createElement('li');
-      li.dataset.id = task.id;
+      li.dataset.id   = task.id;
+      li.dataset.done = task.done ? '1' : '0';
 
-      let cls = 'task-item' + (task.done ? ' done' : '');
+      let cls = 'task-item' + (task.done ? ' task-done' : '');
       if (task.id === newlyAddedId) cls += ' is-new';
-      if (idx === firstDoneIdx)     cls += ' done-divider-above';
       li.className = cls;
 
-      // ── チェックボックス ──
+      // ─ ドラッグハンドル ─
+      const handle = document.createElement('span');
+      handle.className = 'drag-handle';
+      handle.title = 'ドラッグして並べ替え';
+      handle.innerHTML = `<svg width="12" height="16" viewBox="0 0 12 16" fill="currentColor"
+          xmlns="http://www.w3.org/2000/svg">
+        <circle cx="3" cy="2.5"  r="1.5"/>
+        <circle cx="9" cy="2.5"  r="1.5"/>
+        <circle cx="3" cy="8"    r="1.5"/>
+        <circle cx="9" cy="8"    r="1.5"/>
+        <circle cx="3" cy="13.5" r="1.5"/>
+        <circle cx="9" cy="13.5" r="1.5"/>
+      </svg>`;
+
+      // ─ チェックボックス ─
       const checkWrap = document.createElement('label');
       checkWrap.className = 'check-wrap';
-
       const cb       = document.createElement('input');
       cb.type        = 'checkbox';
       cb.checked     = task.done;
-
       cb.addEventListener('change', () => {
         if (editingId === task.id) editingId = null;
-        animateCheck(task.id, cb.checked);
+        handleCheck(task.id, cb.checked);
       });
-
       const box      = document.createElement('span');
       box.className  = 'check-box';
       checkWrap.appendChild(cb);
       checkWrap.appendChild(box);
 
-      // ── テキスト or インライン編集 ──
+      // ─ テキスト or インライン編集 ─
       if (editingId === task.id) {
         const inp     = document.createElement('input');
         inp.type      = 'text';
         inp.className = 'inline-edit';
         inp.value     = task.text;
         inp.maxLength = 100;
-
         inp.addEventListener('keydown', e => {
           if (e.key === 'Enter')  { e.preventDefault(); commitEdit(task.id, inp.value); }
-          if (e.key === 'Escape') { editingId = null; render(); }
+          if (e.key === 'Escape') { editingId = null; renderTasks(); }
         });
         inp.addEventListener('blur', () => {
-          setTimeout(() => {
-            if (editingId === task.id) commitEdit(task.id, inp.value);
-          }, 120);
+          setTimeout(() => { if (editingId === task.id) commitEdit(task.id, inp.value); }, 120);
         });
-
+        li.appendChild(handle);
         li.appendChild(checkWrap);
         li.appendChild(inp);
-
         requestAnimationFrame(() => {
           inp.focus();
           inp.setSelectionRange(inp.value.length, inp.value.length);
@@ -672,20 +976,19 @@ function render() {
         span.className   = 'task-text';
         span.textContent = task.text;
         span.title       = 'タップして編集';
-
-        span.addEventListener('click', () => { editingId = task.id; render(); });
+        span.addEventListener('click', () => { editingId = task.id; renderTasks(); });
         span.addEventListener('touchend', e => {
           e.preventDefault();
           editingId = task.id;
-          render();
+          renderTasks();
         }, { passive: false });
-
+        li.appendChild(handle);
         li.appendChild(checkWrap);
         li.appendChild(span);
       }
 
-      // ── 削除ボタン ──
-      const del       = document.createElement('button');
+      // ─ 削除ボタン ─
+      const del = document.createElement('button');
       del.className   = 'btn-delete';
       del.title       = '削除';
       del.textContent = '×';
@@ -693,41 +996,50 @@ function render() {
       del.addEventListener('click', () => {
         deleteDoc(doc(db, 'tasks', task.id)).catch(console.error);
       });
-
       li.appendChild(del);
+
       taskList.appendChild(li);
     });
   }
 
-  // ── FLIP: LAST → INVERT → PLAY ──
-  if (pendingFlipSnaps) {
-    const snaps   = pendingFlipSnaps;
-    pendingFlipSnaps = null;
-
-    requestAnimationFrame(() => {
-      taskList.querySelectorAll('li[data-id]').forEach(el => {
-        const oldTop = snaps.get(el.dataset.id);
-        if (oldTop === undefined) return;          // 新規追加はスキップ
-        const delta = oldTop - el.getBoundingClientRect().top;
-        if (Math.abs(delta) < 1) return;           // 移動なし
-
-        el.style.transition = 'none';
-        el.style.transform  = `translateY(${delta}px)`;
-        void el.offsetHeight;                      // reflow 強制
-        el.style.transition = 'transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94)';
-        el.style.transform  = '';
-      });
-    });
-  }
-
-  // 新規追加フラグをクリア
   newlyAddedId = null;
 
-  // カウント表示
-  const total  = tasks.length;
-  const done   = tasks.filter(t => t.done).length;
-  const active = total - done;
-  countText.textContent = `未完了 ${active} 件 ／ 全 ${total} 件`;
+  const total  = allListTasks.length;
+  const done   = allListTasks.filter(t => t.done).length;
+  countText.textContent = `未完了 ${total - done} 件 ／ 全 ${total} 件`;
+
+  // ════════════════════════════════════
+  // SortableJS 初期化
+  // ════════════════════════════════════
+  sortableInst = new Sortable(taskList, {
+    handle:      '.drag-handle',
+    animation:   200,
+    easing:      'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+    ghostClass:  'drag-ghost',
+    chosenClass: 'drag-chosen',
+    dragClass:   'sortable-drag',
+    forceFallback: false,
+
+    onStart: () => { isDragging = true; },
+
+    onMove: (evt) => {
+      if (evt.related.dataset.noDrag === 'true') return false;
+      const fromDone = evt.dragged.dataset.done === '1';
+      const toDone   = evt.related.dataset.done === '1';
+      return fromDone === toDone;
+    },
+
+    onEnd: async () => {
+      isDragging = false;
+      const items = [...taskList.querySelectorAll('li[data-id]')];
+      if (items.length === 0) return;
+      const batch = writeBatch(db);
+      items.forEach((el, idx) => {
+        batch.update(doc(db, 'tasks', el.dataset.id), { order: idx });
+      });
+      await batch.commit().catch(console.error);
+    }
+  });
 }
 
 /* ════════════════════════════════════════
@@ -741,16 +1053,14 @@ filterBtns.forEach(btn => {
     filterBtns.forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
     filter = btn.dataset.filter;
-    render();
+    renderTasks();
   });
 });
 
 clearBtn.addEventListener('click', async () => {
-  const doneTasks = tasks.filter(t => t.done);
+  const doneTasks = allTasks.filter(t => t.listId === currentListId && t.done);
   if (!doneTasks.length) return;
   if (!confirm(`完了済みの ${doneTasks.length} 件を削除しますか？`)) return;
-
-  // writeBatch で一括削除（最大 500 件）
   const batch = writeBatch(db);
   doneTasks.forEach(t => batch.delete(doc(db, 'tasks', t.id)));
   await batch.commit().catch(console.error);
@@ -761,8 +1071,7 @@ dateLabel.textContent = new Date().toLocaleDateString('ja-JP', {
   year: 'numeric', month: 'long', day: 'numeric', weekday: 'short'
 });
 
-// 初期ローディング表示
-render();
+renderTasks();
 </script>
 </body>
 </html>
