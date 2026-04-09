@@ -33,11 +33,16 @@
         - 並び順を Firestore の order フィールドに保存・同期
         - 修正: Sortable インスタンスの重複生成バグを修正（listsSortable 変数で管理）
 
-  v3.4  タスクの別リスト移動機能追加（2 方式）
-        - ✏️ 横の › ボタンを押すと移動先リスト名ボタンが展開（タップ移動）
-        - ≡ ハンドルをタブバーまでドラッグ＆ドロップしても移動可能
+  v3.4  タスクの別リスト移動機能追加
+        - ≡ ハンドルをタブバーまでドラッグ＆ドロップして別リストへ移動
         - ドラッグ中は移動先タブをハイライト表示（薄青 → 濃青＋拡大）
         - 移動後は移動先リストの未完了グループ先頭に挿入
+
+  v3.5  UI 操作の整理・PC ドラッグ修正
+        - 鉛筆ボタンを廃止 → ダブルタップ／ダブルクリックで編集モードに入るよう変更
+        - 矢印（移動）ボタンを廃止 → ドラッグ操作のみで別リストへ移動
+        - forceFallback: true に変更し PC でもポインターイベントが正しく発火するよう修正
+        - ドラッグ中のタブ検出を elementsFromPoint（複数）方式に統一
 
   ════════════════════════════════════════════════════════════
 -->
@@ -693,7 +698,7 @@
   <!-- ④ タスクリスト -->
   <ul class="task-list" id="task-list"></ul>
 
-  <p class="edit-hint" id="edit-hint">✏️ ボタンで編集 · ≡ をドラッグして並べ替え</p>
+  <p class="edit-hint" id="edit-hint">ダブルタップで編集 · ≡ をドラッグして並べ替え／別リストへ移動</p>
 
   <!-- ⑤ フッター -->
   <div class="card-footer">
@@ -1194,42 +1199,17 @@ function renderTasks() {
         const span       = document.createElement('span');
         span.className   = 'task-text';
         span.textContent = task.text;
+        // ダブルクリック／ダブルタップで編集モードに入る
+        span.addEventListener('dblclick', () => { editingId = task.id; renderTasks(); });
+        let lastTapTime = 0;
+        span.addEventListener('click', () => {
+          const now = Date.now();
+          if (now - lastTapTime < 300) { editingId = task.id; renderTasks(); }
+          lastTapTime = now;
+        });
         li.appendChild(handle);
         li.appendChild(checkWrap);
         li.appendChild(span);
-      }
-
-      // ─ 編集・移動・削除ボタン（通常時） ─
-      if (editingId !== task.id) {
-
-        // 鉛筆ボタン
-        const editBtn = document.createElement('button');
-        editBtn.className   = 'btn-edit';
-        editBtn.title       = '編集';
-        editBtn.innerHTML   = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-        </svg>`;
-        editBtn.addEventListener('click', () => { movingId = null; editingId = task.id; renderTasks(); });
-        li.appendChild(editBtn);
-
-        // 移動ボタン（リストが2つ以上あるときのみ表示）
-        if (allLists.length > 1) {
-          const moveBtn = document.createElement('button');
-          moveBtn.className = 'btn-move';
-          moveBtn.title     = '別のリストへ移動';
-          moveBtn.innerHTML = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="9 18 15 12 9 6"/>
-          </svg>`;
-          moveBtn.addEventListener('click', () => {
-            editingId = null;
-            movingId  = (movingId === task.id) ? null : task.id;
-            renderTasks();
-          });
-          li.appendChild(moveBtn);
-        }
       }
 
       // ─ 削除ボタン ─
@@ -1242,34 +1222,6 @@ function renderTasks() {
         deleteDoc(doc(db, 'tasks', task.id)).catch(console.error);
       });
       li.appendChild(del);
-
-      // ─ 移動先リスト選択行 ─
-      if (movingId === task.id) {
-        li.classList.add('task-moving');
-        const moveRow = document.createElement('div');
-        moveRow.className = 'move-row';
-
-        const label = document.createElement('span');
-        label.className   = 'move-row-label';
-        label.textContent = '移動先：';
-        moveRow.appendChild(label);
-
-        allLists.filter(l => l.id !== currentListId).forEach(list => {
-          const btn = document.createElement('button');
-          btn.className   = 'move-target-btn';
-          btn.textContent = list.title;
-          btn.addEventListener('click', () => moveTask(task.id, list.id));
-          moveRow.appendChild(btn);
-        });
-
-        const cancelBtn = document.createElement('button');
-        cancelBtn.className   = 'btn-move-cancel';
-        cancelBtn.textContent = 'キャンセル';
-        cancelBtn.addEventListener('click', () => { movingId = null; renderTasks(); });
-        moveRow.appendChild(cancelBtn);
-
-        li.appendChild(moveRow);
-      }
 
       taskList.appendChild(li);
     });
@@ -1292,7 +1244,7 @@ function renderTasks() {
     ghostClass:  'drag-ghost',
     chosenClass: 'drag-chosen',
     dragClass:   'sortable-drag',
-    forceFallback: false,
+    forceFallback: true,
 
     onStart: () => {
       isDragging = true;
