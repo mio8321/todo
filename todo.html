@@ -1021,15 +1021,19 @@ async function commitEdit(taskId, newText) {
    ドラッグ中のポインター追跡（タブ ドロップ用）
 ════════════════════════════════════════ */
 function trackPointer(e) {
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-  lastPointerX = clientX;
-  lastPointerY = clientY;
+  const src    = e.touches?.[0] ?? e.changedTouches?.[0] ?? e;
+  lastPointerX = src.clientX;
+  lastPointerY = src.clientY;
 
-  // ホバー中のタブをハイライト
   listsScroll.querySelectorAll('.list-tab').forEach(t => t.classList.remove('drop-zone-active'));
-  const el  = document.elementFromPoint(clientX, clientY);
-  const tab = el?.closest('.list-tab');
+
+  // ゴースト要素の下にある要素も含めて検索（elementsFromPoint）
+  let tab = null;
+  for (const el of document.elementsFromPoint(lastPointerX, lastPointerY)) {
+    if (el.classList?.contains('list-tab')) { tab = el; break; }
+    const p = el.closest?.('.list-tab');
+    if (p) { tab = p; break; }
+  }
   if (tab && tab.dataset.listId !== currentListId) {
     tab.classList.add('drop-zone-active');
   }
@@ -1297,6 +1301,7 @@ function renderTasks() {
         if (tab.dataset.listId !== currentListId) tab.classList.add('drop-zone');
       });
       document.addEventListener('pointermove', trackPointer);
+      document.addEventListener('mousemove',   trackPointer);
       document.addEventListener('touchmove',   trackPointer, { passive: true });
     },
 
@@ -1311,7 +1316,11 @@ function renderTasks() {
     onEnd: async (evt) => {
       isDragging = false;
       document.removeEventListener('pointermove', trackPointer);
+      document.removeEventListener('mousemove',   trackPointer);
       document.removeEventListener('touchmove',   trackPointer);
+
+      // drop-zone-active クラスで移動先タブを判定（elementFromPoint はゴースト要素に阻まれるため使わない）
+      const activeTab = listsScroll.querySelector('.list-tab.drop-zone-active');
 
       // タブのハイライトを解除
       listsScroll.querySelectorAll('.list-tab').forEach(tab => {
@@ -1319,10 +1328,8 @@ function renderTasks() {
       });
 
       // タブの上でドロップされた場合 → リスト移動
-      const el  = document.elementFromPoint(lastPointerX, lastPointerY);
-      const tab = el?.closest('.list-tab');
-      if (tab && tab.dataset.listId && tab.dataset.listId !== currentListId) {
-        await moveTask(evt.item.dataset.id, tab.dataset.listId);
+      if (activeTab && activeTab.dataset.listId && activeTab.dataset.listId !== currentListId) {
+        await moveTask(evt.item.dataset.id, activeTab.dataset.listId);
         return;
       }
 
