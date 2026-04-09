@@ -158,6 +158,9 @@
 
     .list-tab-del:active { background: #fde8e8 !important; color: #e05050 !important; }
 
+    .list-tab-ghost  { opacity: 0.35; }
+    .list-tab-chosen { box-shadow: 0 4px 16px rgba(79,142,247,0.25); }
+
     /* リスト追加ボタン */
     .btn-add-list {
       flex-shrink: 0;
@@ -652,11 +655,13 @@ window.addEventListener('offline', () => setSyncStatus('offline'));
 onSnapshot(
   query(collection(db, 'lists'), orderBy('createdAt', 'asc')),
   async (snapshot) => {
-    const newHash = snapshot.docs.map(d => d.id + d.data().title).join('|');
+    const newHash = snapshot.docs.map(d => d.id + d.data().title + (d.data().order ?? '')).join('|');
     if (newHash === prevListsHash && listsLoaded) return;
     prevListsHash = newHash;
 
-    allLists = snapshot.docs.map(d => ({ id: d.id, title: d.data().title ?? '無題' }));
+    allLists = snapshot.docs
+      .map((d, i) => ({ id: d.id, title: d.data().title ?? '無題', order: d.data().order ?? i }))
+      .sort((a, b) => a.order - b.order);
 
     if (allLists.length === 0) {
       await createDefaultList();
@@ -713,7 +718,7 @@ onSnapshot(
 ════════════════════════════════════════ */
 async function createDefaultList() {
   const listRef = doc(collection(db, 'lists'));
-  await setDoc(listRef, { title: 'メイン', createdAt: serverTimestamp() });
+  await setDoc(listRef, { title: 'メイン', createdAt: serverTimestamp(), order: 0 });
 
   const orphans = allTasks.filter(t => !t.listId);
   if (orphans.length > 0) {
@@ -757,6 +762,23 @@ function renderLists() {
 
   const active = listsScroll.querySelector('.list-tab.active');
   if (active) active.scrollIntoView({ inline: 'nearest', behavior: 'smooth', block: 'nearest' });
+
+  // タブの並べ替え（SortableJS）
+  new Sortable(listsScroll, {
+    animation:        150,
+    delay:            150,
+    delayOnTouchOnly: true,
+    ghostClass:       'list-tab-ghost',
+    chosenClass:      'list-tab-chosen',
+    onEnd: async () => {
+      const tabs = [...listsScroll.querySelectorAll('.list-tab')];
+      const batch = writeBatch(db);
+      tabs.forEach((tab, idx) => {
+        batch.update(doc(db, 'lists', tab.dataset.listId), { order: idx });
+      });
+      await batch.commit().catch(console.error);
+    }
+  });
 }
 
 /* ════════════════════════════════════════
@@ -774,7 +796,7 @@ addListBtn.addEventListener('click', async () => {
   const title = prompt('新しいリスト名を入力してください', '新しいリスト');
   if (!title?.trim()) return;
   const listRef = doc(collection(db, 'lists'));
-  await setDoc(listRef, { title: title.trim(), createdAt: serverTimestamp() })
+  await setDoc(listRef, { title: title.trim(), createdAt: serverTimestamp(), order: allLists.length })
     .catch(console.error);
   currentListId = listRef.id;
 });
