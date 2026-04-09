@@ -1,3 +1,40 @@
+<!--
+  ════════════════════════════════════════════════════════════
+  やることリスト (todo.html) — 修正履歴
+  ════════════════════════════════════════════════════════════
+
+  v1.0  初期作成
+        - シンプルな ToDo リスト（localStorage 版）
+        - Galaxy S25 モバイル対応デザイン
+
+  v2.0  Firebase Firestore 同期対応
+        - localStorage → Firestore に完全移行
+        - リアルタイム PC／スマホ同期
+        - オフライン対応（persistentLocalCache）
+        - 同期バッジ表示（同期中 / 同期済み / オフライン）
+
+  v3.0  複数リスト（カテゴリ）機能追加
+        - 上部タブバーで複数リストを切り替え
+        - リスト追加 / 削除 / リネーム対応
+        - Firestore: lists コレクション追加
+
+  v3.1  タスクのドラッグ＆ドロップ並べ替え追加
+        - SortableJS v1.15.6 を導入
+        - 未完了 ↔ 完了グループをまたぐドラッグを禁止
+        - ドラッグ中は Firestore 再描画を抑制（isDragging フラグ）
+
+  v3.2  タスク編集を鉛筆ボタン方式に変更
+        - テキストをタップしても編集モードに入らないよう変更
+        - 各タスク右側に ✏️ ボタンを追加
+        - 鉛筆ボタン押下時のみインライン編集モードに切り替わる
+
+  v3.3  リストタブの並べ替え機能追加
+        - タブを長押し（モバイル 150ms）またはドラッグ（PC）で順序変更可能
+        - 並び順を Firestore の order フィールドに保存・同期
+        - 修正: Sortable インスタンスの重複生成バグを修正（listsSortable 変数で管理）
+
+  ════════════════════════════════════════════════════════════
+-->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -379,13 +416,17 @@
       line-height: 1.5;
       color: #1a1a2e;
       word-break: break-all;
+      cursor: text;
       border-radius: 6px;
       padding: 4px 6px;
       margin: -4px -6px;
       min-height: 36px;
       display: flex;
       align-items: center;
+      transition: background 0.15s, color 0.2s;
     }
+
+    .task-text:hover { background: #f0f6ff; }
 
     .task-item.task-done .task-text {
       color: #b0bec5;
@@ -630,6 +671,7 @@ let editingId     = null;
 let newlyAddedId  = null;
 let isDragging    = false;
 let sortableInst  = null;
+let listsSortable = null;
 let prevListsHash = '';
 let prevTasksHash = '';
 
@@ -764,12 +806,13 @@ function renderLists() {
   if (active) active.scrollIntoView({ inline: 'nearest', behavior: 'smooth', block: 'nearest' });
 
   // タブの並べ替え（SortableJS）
-  new Sortable(listsScroll, {
-    animation:        150,
-    delay:            150,
-    delayOnTouchOnly: true,
-    ghostClass:       'list-tab-ghost',
-    chosenClass:      'list-tab-chosen',
+  if (listsSortable) { listsSortable.destroy(); listsSortable = null; }
+  listsSortable = new Sortable(listsScroll, {
+    animation:          150,
+    delay:              150,
+    delayOnTouchOnly:   true,
+    ghostClass:         'list-tab-ghost',
+    chosenClass:        'list-tab-chosen',
     onEnd: async () => {
       const tabs = [...listsScroll.querySelectorAll('.list-tab')];
       const batch = writeBatch(db);
