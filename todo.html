@@ -44,10 +44,6 @@
         - forceFallback: true に変更し PC でもポインターイベントが正しく発火するよう修正
         - ドラッグ中のタブ検出を elementsFromPoint（複数）方式に統一
 
-  v3.6  タブ削除ボタンの誤タップ防止
-        - × ボタンを選択中（アクティブ）タブにのみ表示するよう変更
-        - 非選択タブのタップはリスト切替のみに限定し、誤削除を防止
-
   ════════════════════════════════════════════════════════════
 -->
 <!DOCTYPE html>
@@ -183,7 +179,7 @@
 
     .list-tab:not(.active) .list-tab-name { color: #7a8ba0; }
 
-    /* タブ内の削除ボタン — 選択中タブにのみ表示 */
+    /* タブ内の削除ボタン */
     .list-tab-del {
       width: 20px;
       height: 20px;
@@ -193,7 +189,7 @@
       font-size: 0.78rem;
       line-height: 1;
       cursor: pointer;
-      display: none;          /* 非選択時は非表示 */
+      display: flex;
       align-items: center;
       justify-content: center;
       color: #7a8ba0;
@@ -204,7 +200,6 @@
     }
 
     .list-tab.active .list-tab-del {
-      display: flex;          /* 選択中タブだけ表示 */
       background: rgba(79,142,247,0.15);
       color: #4f8ef7;
     }
